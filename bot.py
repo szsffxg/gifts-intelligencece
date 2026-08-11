@@ -134,12 +134,14 @@ async def plan_details(call: CallbackQuery):
 @dp.callback_query(F.data.startswith("paystars:"))
 async def pay_stars(call: CallbackQuery):
     await call.answer()
+
     code = call.data.split(":")[1]
     plan = config.PLANS[code]
     user = await ensure_user(call.from_user)
 
     payload = f"stars:{user['id']}:{code}"
-    payment = await db.create_payment({
+
+    await db.create_payment({
         "user_id": user["id"],
         "plan_code": code,
         "payment_method": "stars",
@@ -149,14 +151,30 @@ async def pay_stars(call: CallbackQuery):
         "payload": payload,
     })
 
-    await bot.send_invoice(
+    invoice_message = await bot.send_invoice(
         chat_id=call.from_user.id,
         title=f"Gifts Intelligence — {plan.title}",
         description="Доступ к приватным NFT-сигналам и NFT-Tracker.",
         payload=payload,
         currency="XTR",
-        prices=[LabeledPrice(label=plan.title, amount=plan.stars)],
+        prices=[
+            LabeledPrice(
+                label=plan.title,
+                amount=plan.stars
+            )
+        ],
         provider_token="",
+    )
+
+    # Временно сохраняем ID invoice в FSM,
+    # чтобы кнопка "Назад" могла его удалить.
+    await call.bot.get_fsm_storage().set_data(
+        bot_id=bot.id,
+        chat_id=call.from_user.id,
+        user_id=call.from_user.id,
+        data={
+            "stars_invoice_message_id": invoice_message.message_id
+        }
     )
 
 @dp.pre_checkout_query()
