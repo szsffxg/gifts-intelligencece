@@ -78,10 +78,10 @@ async def start(message: Message):
     await message.answer(
         "💎 <b>Gifts Intelligence</b>\n\n"
         "Автоматический мониторинг рынка Telegram NFT Gifts.\n\n"
-        "📡 <b>Gifts Intelligence</b> — потенциально выгодные сделки и арбитражные сигналы.\n"
-        "🔍 <b>NFT-Tracker</b> — поиск подарков по модели, фону, номеру и другим параметрам.\n\n"
+        "📡 <b>Gifts Intelligence</b> — потенциально выгодные сделки и арбитражные сигналы\n"
+        "🔍 <b>NFT-Tracker</b> — поиск подарков по модели, фону, номеру и другим параметрам\n\n"
         "⚠️ Сигнал не является гарантией прибыли. Перед покупкой самостоятельно проверяйте "
-        "реальные цены, конкурентов, историю продаж и ликвидность."
+        "реальные цены, конкурентов, историю продаж и ликвидность"
         + status,
         reply_markup=main_menu(),
     )
@@ -90,7 +90,7 @@ async def start(message: Message):
 async def admin_cmd(message: Message):
     await ensure_user(message.from_user)
     if not is_admin(message.from_user):
-        await message.answer("⛔ Доступ запрещён.")
+        await message.answer("⛔ Доступ запрещён")
         return
     await message.answer("👑 <b>Gifts Intelligence — Admin Panel</b>", reply_markup=admin_menu())
 
@@ -110,7 +110,7 @@ async def plans(call: CallbackQuery):
         "📡 Полный доступ к Gifts Intelligence\n"
         "🔍 NFT-Tracker\n"
         "⚡ Все новые сигналы\n\n"
-        "⚠️ Перед каждой сделкой проверяйте рынок самостоятельно.",
+        "⚠️ Перед каждой сделкой проверяйте рынок самостоятельно",
         reply_markup=plans_menu()
     )
 
@@ -154,7 +154,7 @@ async def pay_stars(call: CallbackQuery):
     invoice_message = await bot.send_invoice(
         chat_id=call.from_user.id,
         title=f"Gifts Intelligence — {plan.title}",
-        description="Доступ к приватным NFT-сигналам и NFT-Tracker.",
+        description="Доступ к приватным NFT-сигналам и NFT-Tracker",
         payload=payload,
         currency="XTR",
         prices=[
@@ -213,7 +213,7 @@ async def back_invoice(call: CallbackQuery):
         "📡 Полный доступ к Gifts Intelligence\n"
         "🔍 NFT-Tracker\n"
         "⚡ Все новые сигналы\n\n"
-        "⚠️ Перед каждой сделкой проверяйте рынок самостоятельно.",
+        "⚠️ Перед каждой сделкой проверяйте рынок самостоятельно",
         reply_markup=plans_menu()
     )
 
@@ -236,7 +236,7 @@ async def successful_payment(message: Message):
 
     code = payment.invoice_payload.split(":")[-1]
     if existing and existing.get("status") == "paid":
-        await message.answer("✅ Этот платёж уже обработан.", reply_markup=main_menu())
+        await message.answer("✅ Этот платёж уже обработан", reply_markup=main_menu())
         return
 
     if existing:
@@ -267,8 +267,8 @@ async def successful_payment(message: Message):
         f"⭐ Оплачено: <b>{plan.stars} Stars</b>\n"
         f"⏰ Доступ до: <b>{subscription['expires_at'][:10]}</b>\n\n"
         "📡 <b>Gifts Intelligence</b>\n"
-        "Нажмите кнопку ниже, чтобы войти в приватный канал.\n\n"
-        "🔍 <b>NFT-Tracker</b> — используйте отдельную кнопку.",
+        "Нажмите кнопку ниже, чтобы войти в приватный канал\n\n"
+        "🔍 <b>NFT-Tracker</b> — используйте отдельную кнопку",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🔐 Войти в Gifts Intelligence", url=invite)],
             [InlineKeyboardButton(text="🔍 Открыть NFT-Tracker", url=f"https://t.me/{config.TRACKER_BOT_USERNAME}")],
@@ -326,7 +326,7 @@ async def demo(call: CallbackQuery):
     if active_sub:
         await call.message.edit_text(
             "💎 У вас уже есть активная подписка.\n\n"
-            "Вам доступны все сигналы в приватном канале.",
+            "Вам доступны все сигналы в приватном канале",
             reply_markup=main_menu()
         )
         return
@@ -335,7 +335,7 @@ async def demo(call: CallbackQuery):
     if result is None:
         await call.message.edit_text(
             "🎁 <b>Демо уже использовано</b>\n\n"
-            "Вы можете получить полный доступ к Gifts Intelligence.",
+            "Вы можете получить полный доступ к Gifts Intelligence",
             reply_markup=plans_menu()
         )
         return
@@ -343,9 +343,9 @@ async def demo(call: CallbackQuery):
     count = result["signals_received"]
     await call.message.edit_text(
         "🎁 <b>Демо активировано!</b>\n\n"
-        "Вы получите следующие <b>3 новых сигнала</b> из Gifts Intelligence.\n\n"
+        "Вы получите следующие <b>3 новых сигнала</b> из Gifts Intelligence\n\n"
         f"Прогресс: <b>{count}/3</b>\n\n"
-        "Ожидайте новые сигналы.",
+        "Ожидайте новые сигналы",
         reply_markup=main_menu()
     )
 
@@ -354,14 +354,14 @@ async def how(call: CallbackQuery):
     await call.answer()
     await call.message.edit_text(
         "📖 <b>Как работает Gifts Intelligence</b>\n\n"
-        "1️⃣ Система отслеживает новые NFT-подарки.\n"
-        "2️⃣ Сравнивает их с похожими предложениями.\n"
-        "3️⃣ Анализирует потенциальную разницу в цене.\n"
+        "1️⃣ Система отслеживает новые NFT-подарки\n"
+        "2️⃣ Сравнивает их с похожими предложениями\n"
+        "3️⃣ Анализирует потенциальную разницу в цене\n"
         "4️⃣ Выделяет интересные стратегии: Premium, Monochrome, "
-        "Model Arbitrage и Special Numbers.\n"
-        "5️⃣ Подходящие возможности попадают в канал сигналов.\n\n"
+        "Model Arbitrage и Special Numbers\n"
+        "5️⃣ Подходящие возможности попадают в канал сигналов\n\n"
         "⚠️ Важно: один дорогой лот может быть выбросом. "
-        "Перед покупкой проверяйте floor, несколько конкурентов, историю продаж и ликвидность.",
+        "Перед покупкой проверяйте floor, несколько конкурентов, историю продаж и ликвидность",
         reply_markup=back_menu()
     )
 
@@ -371,13 +371,13 @@ async def faq(call: CallbackQuery):
     await call.message.edit_text(
         "❓ <b>FAQ</b>\n\n"
         "<b>Есть ли гарантия прибыли?</b>\n"
-        "Нет. Сигнал показывает потенциальную возможность.\n\n"
+        "Нет. Сигнал показывает потенциальную возможность\n\n"
         "<b>Сколько длится демо?</b>\n"
-        "Следующие 3 новых сигнала.\n\n"
+        "Следующие 3 новых сигнала\n\n"
         "<b>Что входит в подписку?</b>\n"
-        "Приватный канал Gifts Intelligence + NFT-Tracker.\n\n"
+        "Приватный канал Gifts Intelligence + NFT-Tracker\n\n"
         "<b>Что если подписка закончилась?</b>\n"
-        "Доступ удаляется автоматически. Подписку можно продлить.",
+        "Доступ удаляется автоматически. Подписку можно продлить",
         reply_markup=back_menu()
     )
 
@@ -389,7 +389,7 @@ async def support_start(call: CallbackQuery, state: FSMContext):
     await state.set_state(SupportState.waiting_message)
     await call.message.edit_text(
         "💬 <b>Поддержка</b>\n\n"
-        "Напишите сообщение одним сообщением. Оно будет передано администратору.",
+        "Напишите сообщение одним сообщением. Оно будет передано администратору",
         reply_markup=back_menu()
     )
 
@@ -421,7 +421,7 @@ async def support_message(message: Message, state: FSMContext):
         except Exception:
             pass
 
-    await message.answer("✅ Сообщение отправлено поддержке.", reply_markup=main_menu())
+    await message.answer("✅ Сообщение отправлено поддержке", reply_markup=main_menu())
 
 @dp.channel_post()
 async def channel_post(message: Message):
@@ -447,7 +447,7 @@ async def channel_post(message: Message):
                 await bot.send_message(
                     telegram_id,
                     f"🎁 Демо: <b>{count}/3</b> сигналов получено.\n\n"
-                    "Следующий сигнал придёт автоматически."
+                    "Следующий сигнал придёт автоматически"
                 )
             else:
                 await bot.send_message(
