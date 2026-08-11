@@ -166,15 +166,55 @@ async def pay_stars(call: CallbackQuery):
         provider_token="",
     )
 
-    # Временно сохраняем ID invoice в FSM,
-    # чтобы кнопка "Назад" могла его удалить.
-    await call.bot.get_fsm_storage().set_data(
-        bot_id=bot.id,
-        chat_id=call.from_user.id,
-        user_id=call.from_user.id,
-        data={
-            "stars_invoice_message_id": invoice_message.message_id
-        }
+    # Меняем кнопку "Назад", чтобы она знала ID invoice.
+    await call.message.edit_reply_markup(
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="⭐ Оплатить Stars",
+                        callback_data=f"paystars:{code}"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="₿ Оплатить USDT",
+                        callback_data=f"paycrypto:{code}"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="◀️ Назад",
+                        callback_data=f"back_invoice:{invoice_message.message_id}"
+                    )
+                ],
+            ]
+        )
+    )
+
+@dp.callback_query(F.data.startswith("back_invoice:"))
+async def back_invoice(call: CallbackQuery):
+    await call.answer()
+
+    invoice_message_id = int(call.data.split(":")[1])
+
+    # Удаляем сообщение со счётом Stars
+    try:
+        await bot.delete_message(
+            chat_id=call.from_user.id,
+            message_id=invoice_message_id
+        )
+    except TelegramBadRequest:
+        pass
+
+    # Возвращаем меню тарифов
+    await call.message.edit_text(
+        "💎 <b>Выберите подписку</b>\n\n"
+        "📡 Полный доступ к Gifts Intelligence\n"
+        "🔍 NFT-Tracker\n"
+        "⚡ Все новые сигналы\n\n"
+        "⚠️ Перед каждой сделкой проверяйте рынок самостоятельно.",
+        reply_markup=plans_menu()
     )
 
 @dp.pre_checkout_query()
