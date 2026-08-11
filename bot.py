@@ -20,7 +20,13 @@ logging.basicConfig(
 )
 log = logging.getLogger("gifts-intelligence")
 
-bot = Bot(config.BOT_TOKEN)
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+
+bot = Bot(
+    config.BOT_TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
 dp = Dispatcher()
 db = Database(config.SUPABASE_URL, config.SUPABASE_KEY)
 crypto = CryptoPay(config.CRYPTOBOT_API_TOKEN, config.CRYPTOBOT_API_BASE)
