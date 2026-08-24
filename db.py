@@ -136,6 +136,66 @@ class Database:
             }).execute().data[0]
         return await self._run(op)
 
+            async def add_subscription_days(
+        self,
+        user_id: str,
+        days: int,
+        payment_method: str = "referral",
+    ):
+        def op():
+            now = datetime.now(timezone.utc)
+
+            rows = (
+                self.client.table("subscriptions")
+                .select("*")
+                .eq("user_id", user_id)
+                .eq("status", "active")
+                .order("expires_at", desc=True)
+                .limit(1)
+                .execute()
+                .data
+            )
+
+            if rows:
+                current = rows[0]
+
+                current_expiry = datetime.fromisoformat(
+                    current["expires_at"].replace("Z", "+00:00")
+                )
+
+                start = max(now, current_expiry)
+                expires = start + timedelta(days=days)
+
+                return (
+                    self.client.table("subscriptions")
+                    .update({
+                        "expires_at": expires.isoformat(),
+                        "payment_method": payment_method,
+                        "updated_at": now.isoformat(),
+                    })
+                    .eq("id", current["id"])
+                    .execute()
+                    .data[0]
+                )
+
+            expires = now + timedelta(days=days)
+
+            return (
+                self.client.table("subscriptions")
+                .insert({
+                    "user_id": user_id,
+                    "plan_code": "1m",
+                    "payment_method": payment_method,
+                    "starts_at": now.isoformat(),
+                    "expires_at": expires.isoformat(),
+                    "status": "active",
+                })
+                .execute()
+                .data[0]
+            )
+
+        return await self._run(op)
+
         async def create_referral(self, referrer_user_id: str, referred_user_id: str):
         """
         Привязывает нового пользователя к тому, кто его пригласил.
