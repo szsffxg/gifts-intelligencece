@@ -136,6 +136,174 @@ class Database:
             }).execute().data[0]
         return await self._run(op)
 
+        async def create_referral(self, referrer_user_id: str, referred_user_id: str):
+        """
+        Привязывает нового пользователя к тому, кто его пригласил.
+        Один пользователь может быть рефералом только один раз.
+        """
+        if referrer_user_id == referred_user_id:
+            return None
+
+        def op():
+            # Уже является чьим-то рефералом
+            existing = (
+                self.client.table("referrals")
+                .select("*")
+                .eq("referred_user_id", referred_user_id)
+                .limit(1)
+                .execute()
+                .data
+            )
+
+            if existing:
+                return existing[0]
+
+            return (
+                self.client.table("referrals")
+                .insert({
+                    "referrer_user_id": referrer_user_id,
+                    "referred_user_id": referred_user_id,
+                    "paid": False,
+                })
+                .execute()
+                .data[0]
+            )
+
+        return await self._run(op)
+
+
+    async def mark_referral_paid(self, referred_user_id: str):
+        """
+        Отмечает первую успешную оплату приглашённого пользователя.
+        Повторные оплаты не засчитываются.
+        """
+        def op():
+            rows = (
+                self.client.table("referrals")
+                .select("*")
+                .eq("referred_user_id", referred_user_id)
+                .limit(1)
+                .execute()
+                .data
+            )
+
+            if not rows:
+                return None
+
+            referral = rows[0]
+
+            # Уже засчитывали его оплату
+            if referral.get("paid"):
+                return None
+
+            updated = (
+                self.client.table("referrals")
+                .update({
+                    "paid": True,
+                    "paid_at": datetime.now(timezone.utc).isoformat(),
+                })
+                .eq("id", referral["id"])
+                .execute()
+                .data
+            )
+
+            return updated[0] if updated else None
+
+        return await self._run(op)
+
+
+    async def get_paid_referrals_count(self, referrer_user_id: str):
+        """
+        Возвращает количество приглашённых пользователей,
+        которые реально оплатили подписку.
+        """
+        def op():
+            result = (
+                self.client.table("referrals")
+                .select("id", count="exact")
+                .eq("referrer_user_id", referrer_user_id)
+                .eq("paid", True)
+                .execute()
+            )
+
+            return result.count or 0
+
+        return await self._run(op)
+
+
+    async def get_referrals_count(self, referrer_user_id: str):
+        """
+        Общее количество приглашённых пользователей.
+        """
+        def op():
+            result = (
+                self.client.table("referrals")
+                .select("id", count="exact")
+                .eq("referrer_user_id", referrer_user_id)
+                .execute()
+            )
+
+            return result.count or 0
+
+        return await self._run(op)
+
+
+    async def has_referral_reward(self, user_id: str, milestone: int):
+        """
+        Проверяет, выдавалась ли уже награда за 3 / 6 / 9 ... друзей.
+        """
+        def op():
+            rows = (
+                self.client.table("referral_rewards")
+                .select("*")
+                .eq("user_id", user_id)
+                .eq("milestone", milestone)
+                .limit(1)
+                .execute()
+                .data
+            )
+
+            return bool(rows)
+
+        return await self._run(op)
+
+
+    async def create_referral_reward(
+        self,
+        user_id: str,
+        milestone: int,
+        days: int = 30,
+    ):
+        """
+        Фиксирует выдачу реферальной награды.
+        """
+        def op():
+            existing = (
+                self.client.table("referral_rewards")
+                .select("*")
+                .eq("user_id", user_id)
+                .eq("milestone", milestone)
+                .limit(1)
+                .execute()
+                .data
+            )
+
+            if existing:
+                return existing[0]
+
+            return (
+                self.client.table("referral_rewards")
+                .insert({
+                    "user_id": user_id,
+                    "milestone": milestone,
+                    "days": days,
+                })
+                .execute()
+                .data[0]
+            )
+
+        return await self._run(op)
+
     async def list_expired_subscriptions(self):
         def op():
             now = datetime.now(timezone.utc).isoformat()
