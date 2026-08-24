@@ -258,6 +258,81 @@ async def back_invoice(call: CallbackQuery):
 async def pre_checkout(query: PreCheckoutQuery):
     await query.answer(ok=True)
 
+async def process_referral_payment(paid_user: dict):
+    """
+    Засчитывает первую оплату реферала.
+    За каждые 3 оплативших приглашённых выдаёт +30 дней.
+    """
+    try:
+        referral = await db.mark_referral_paid(paid_user["id"])
+
+        # Пользователь не был рефералом
+        # или его первая оплата уже была засчитана ранее.
+        if not referral:
+            return
+
+        referrer_user_id = referral["referrer_user_id"]
+
+        paid_count = await db.get_paid_referrals_count(referrer_user_id)
+
+        # Награда только на 3 / 6 / 9 / 12 ...
+        if paid_count < 3 or paid_count % 3 != 0:
+            return
+
+        already_rewarded = await db.has_referral_reward(
+            referrer_user_id,
+            paid_count,
+        )
+
+        if already_rewarded:
+            return
+
+        # Сначала фиксируем milestone, чтобы не выдать бонус дважды.
+        await db.create_referral_reward(
+            user_id=referrer_user_id,
+            milestone=paid_count,
+            days=30,
+        )
+
+        subscription = await db.add_subscription_days(
+            user_id=referrer_user_id,
+            days=30,
+            payment_method="referral",
+        )
+
+        referrer = await db.get_user_by_db_id(referrer_user_id)
+
+        if referrer:
+            try:
+                await bot.send_message(
+                    referrer["telegram_id"],
+                    "🎉 <b>Реферальный бонус!</b>\n\n"
+                    f"👥 Уже <b>{paid_count}</b> ваших друзей оплатили подписку.\n\n"
+                    "🎁 Вам начислено <b>30 дней Gifts Intelligence</b>.\n"
+                    f"⏰ Доступ до: <b>{subscription['expires_at'][:10]}</b>",
+                    reply_markup=main_menu(),
+                )
+            except Exception as e:
+                log.warning(
+                    "Failed to notify referral owner %s: %s",
+                    referrer["telegram_id"],
+                    e,
+                )
+
+        log.info(
+            "Referral reward granted: user=%s milestone=%s days=30",
+            referrer_user_id,
+            paid_count,
+        )
+
+    except Exception as e:
+        # Рефералка не должна ломать успешную оплату пользователя.
+        log.exception(
+            "Referral payment processing failed for user %s: %s",
+            paid_user.get("id"),
+            e,
+        )
+
 @dp.message(F.successful_payment)
 async def successful_payment(message: Message):
     payment = message.successful_payment
