@@ -757,10 +757,19 @@ async def crypto_loop():
 
                 payload = invoice.get("payload") or row.get("payload") or ""
                 code = row["plan_code"]
-                telegram_id = (await db.get_user_by_db_id(row["user_id"]))["telegram_id"]
+                paid_user = await db.get_user_by_db_id(row["user_id"])
+                telegram_id = paid_user["telegram_id"]
 
                 await db.mark_payment_paid(row["id"])
-                subscription, invite = await access.activate(telegram_id, code, "cryptobot")
+
+                subscription, invite = await access.activate(
+                    telegram_id,
+                    code,
+                    "cryptobot"
+                )
+
+                await process_referral_payment(paid_user)
+
                 plan = config.PLANS[code]
 
                 await bot.send_message(
