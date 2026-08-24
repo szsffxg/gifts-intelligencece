@@ -136,7 +136,7 @@ class Database:
             }).execute().data[0]
         return await self._run(op)
 
-            async def add_subscription_days(
+    async def add_subscription_days(
         self,
         user_id: str,
         days: int,
@@ -196,7 +196,7 @@ class Database:
 
         return await self._run(op)
 
-        async def create_referral(self, referrer_user_id: str, referred_user_id: str):
+    async def create_referral(self, referrer_user_id: str, referred_user_id: str):
         """
         Привязывает нового пользователя к тому, кто его пригласил.
         Один пользователь может быть рефералом только один раз.
