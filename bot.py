@@ -462,6 +462,46 @@ async def demo(call: CallbackQuery):
         reply_markup=main_menu()
     )
 
+@dp.callback_query(F.data == "referrals")
+async def referrals(call: CallbackQuery):
+    await call.answer()
+
+    user = await ensure_user(call.from_user)
+
+    total_count = await db.get_referrals_count(user["id"])
+    paid_count = await db.get_paid_referrals_count(user["id"])
+
+    # Прогресс именно до следующего месяца.
+    progress = paid_count % 3
+
+    if progress == 0 and paid_count > 0:
+        progress = 0
+
+    left = 3 - progress
+
+    # Получаем настоящий username бота автоматически.
+    me = await bot.get_me()
+    referral_link = (
+        f"https://t.me/{me.username}?start=ref_{call.from_user.id}"
+    )
+
+    await call.message.edit_text(
+        "👥 <b>Реферальная программа</b>\n\n"
+        "Приглашай друзей в Gifts Intelligence\n"
+        "За каждых <b>3 друзей, оплативших подписку</b>, "
+        "ты получаешь <b>30 дней доступа бесплатно</b>\n\n"
+
+        f"👤 Приглашено: <b>{total_count}</b>\n"
+        f"💎 Оплатили: <b>{paid_count}</b>\n"
+        f"🎯 До следующего месяца: <b>{left}</b>\n\n"
+
+        "🔗 <b>Твоя ссылка:</b>\n"
+        f"<code>{referral_link}</code>\n\n"
+
+        "Оплата друга засчитывается только один раз",
+        reply_markup=back_menu(),
+    )
+
 @dp.callback_query(F.data == "how")
 async def how(call: CallbackQuery):
     await call.answer()
