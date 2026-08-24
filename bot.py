@@ -431,6 +431,22 @@ async def pay_crypto(call: CallbackQuery):
         ])
     )
 
+@dp.callback_query(F.data.startswith("copy_mint:"))
+async def copy_mint(call: CallbackQuery):
+    try:
+        mint_number = call.data.split(":", 1)[1]
+
+        await call.answer(
+            f"Mint #{mint_number}",
+            show_alert=True,
+        )
+
+    except Exception:
+        await call.answer(
+            "Не удалось получить Mint #",
+            show_alert=True,
+        )
+
 @dp.callback_query(F.data == "demo")
 async def demo(call: CallbackQuery):
     await call.answer()
@@ -575,7 +591,13 @@ async def channel_post(message: Message):
             continue
         telegram_id = user["telegram_id"]
         try:
-            await safe_copy_message(bot, telegram_id, message.chat.id, message.message_id)
+            await safe_copy_message(
+                bot,
+                telegram_id,
+                message.chat.id,
+                message.message_id,
+                reply_markup=message.reply_markup,
+            )
             updated = await db.increment_demo(demo["id"], demo["signals_received"])
             count = updated["signals_received"]
 
