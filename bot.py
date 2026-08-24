@@ -71,10 +71,47 @@ async def notify_admin_chats(text: str):
 @dp.message(CommandStart())
 async def start(message: Message):
     user = await ensure_user(message.from_user)
+
+    # Реферальная ссылка:
+    # https://t.me/USERNAME_BOT?start=ref_123456789
+    parts = (message.text or "").split(maxsplit=1)
+
+    if len(parts) > 1:
+        start_param = parts[1].strip()
+
+        if start_param.startswith("ref_"):
+            try:
+                referrer_telegram_id = int(start_param.removeprefix("ref_"))
+
+                # Нельзя пригласить самого себя
+                if referrer_telegram_id != message.from_user.id:
+                    referrer = await db.get_user(referrer_telegram_id)
+
+                    if referrer:
+                        await db.create_referral(
+                            referrer_user_id=referrer["id"],
+                            referred_user_id=user["id"],
+                        )
+
+            except (ValueError, TypeError):
+                log.warning(
+                    "Invalid referral parameter from user %s: %s",
+                    message.from_user.id,
+                    start_param,
+                )
+            except Exception as e:
+                log.exception(
+                    "Failed to save referral for user %s: %s",
+                    message.from_user.id,
+                    e,
+                )
+
     sub = await db.get_active_subscription(user["id"])
+
     status = ""
     if sub:
         status = f"\n\n💎 Подписка активна до <b>{sub['expires_at'][:10]}</b>."
+
     await message.answer(
         "💎 <b>Gifts Intelligence</b>\n\n"
         "Автоматический мониторинг рынка Telegram NFT Gifts.\n\n"
