@@ -86,9 +86,16 @@ class AccessManager:
 
         await self.db.expire_subscription(subscription["id"])
 
-async def safe_copy_message(bot: Bot, target_chat_id: int, from_chat_id: int, message_id: int):
+async def safe_copy_message(
+    bot: Bot,
+    target_chat_id: int,
+    from_chat_id: int,
+    message_id: int,
+    reply_markup=None,
+):
     return await bot.copy_message(
         chat_id=target_chat_id,
         from_chat_id=from_chat_id,
         message_id=message_id,
+        reply_markup=reply_markup,
     )
