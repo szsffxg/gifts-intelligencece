@@ -371,6 +371,7 @@ async def successful_payment(message: Message):
         })
 
     subscription, invite = await access.activate(message.from_user.id, code, "stars")
+    await process_referral_payment(user)
     plan = config.PLANS[code]
 
     await message.answer(
