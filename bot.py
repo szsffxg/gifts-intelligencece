@@ -503,35 +503,18 @@ async def referrals(call: CallbackQuery):
     )
 
 @dp.callback_query(F.data == "how")
-async def how(call: CallbackQuery):
+async def how_it_works(call: CallbackQuery):
     await call.answer()
-    await call.message.edit_text(
-        "📖 <b>Как работает Gifts Intelligence</b>\n\n"
-        "1️⃣ Система отслеживает новые NFT-подарки\n"
-        "2️⃣ Сравнивает их с похожими предложениями\n"
-        "3️⃣ Анализирует потенциальную разницу в цене\n"
-        "4️⃣ Выделяет интересные стратегии: Premium, Monochrome, "
-        "Model Arbitrage и Special Numbers\n"
-        "5️⃣ Подходящие возможности попадают в канал сигналов\n\n"
-        "⚠️ Важно: один дорогой лот может быть выбросом. "
-        "Перед покупкой проверяйте floor, несколько конкурентов, историю продаж и ликвидность",
-        reply_markup=back_menu()
-    )
 
-@dp.callback_query(F.data == "faq")
-async def faq(call: CallbackQuery):
-    await call.answer()
     await call.message.edit_text(
-        "❓ <b>FAQ</b>\n\n"
-        "<b>Есть ли гарантия прибыли?</b>\n"
-        "Нет. Сигнал показывает потенциальную возможность\n\n"
-        "<b>Сколько длится демо?</b>\n"
-        "Следующие 3 новых сигнала\n\n"
-        "<b>Что входит в подписку?</b>\n"
-        "Приватный канал Gifts Intelligence + NFT-Tracker\n\n"
-        "<b>Что если подписка закончилась?</b>\n"
-        "Доступ удаляется автоматически. Подписку можно продлить",
-        reply_markup=back_menu()
+        "❓ <b>Как работает Gifts Intelligence?</b>\n\n"
+        "🤖 Бот круглосуточно анализирует Telegram Gifts и находит потенциально выгодные сделки\n\n"
+        "📡 <b>Gifts Intelligence</b> — присылает сигналы на покупку\n"
+        "🔍 <b>NFT-Tracker</b> — помогает искать подарки по параметрам\n\n"
+        "🎁 Новым пользователям доступны <b>3 бесплатных сигнала</b>\n"
+        "💎 Дальше для доступа нужна подписка\n\n"
+        "⚠️ Сигналы не гарантируют прибыль. Всегда проверяйте цену и ликвидность перед покупкой",
+        reply_markup=back_menu(),
     )
 
 @dp.callback_query(F.data == "support")
