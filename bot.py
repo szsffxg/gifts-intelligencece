@@ -110,7 +110,7 @@ async def start(message: Message):
 
     status = ""
     if sub:
-        status = f"\n\n💎 Подписка активна до <b>{sub['expires_at'][:10]}</b>."
+        status = f"\n\n💎 Подписка активна до <b>{sub['expires_at'][:10]}</b>"
 
     await message.answer(
         "💎 <b><a href='https://t.me/GiftsIntelligence'>Gifts Intelligence</a></b>\n\n"
@@ -455,7 +455,7 @@ async def demo(call: CallbackQuery):
     active_sub = await db.get_active_subscription(user["id"])
     if active_sub:
         await call.message.edit_text(
-            "💎 У вас уже есть активная подписка.\n\n"
+            "💎 У вас уже есть активная подписка\n\n"
             "Вам доступны все сигналы в приватном канале",
             reply_markup=main_menu()
         )
