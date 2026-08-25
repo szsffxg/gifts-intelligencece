@@ -113,9 +113,9 @@ async def start(message: Message):
         status = f"\n\n💎 Подписка активна до <b>{sub['expires_at'][:10]}</b>."
 
     await message.answer(
-        "💎 <b>Gifts Intelligence</b>\n\n"
+        "💎 <b><a href="https://t.me/GiftsIntelligence">Gifts Intelligence</a></b>\n\n"
         "Автоматический мониторинг рынка Telegram NFT Gifts.\n\n"
-        "📡 <b>Gifts Intelligence</b> — потенциально выгодные сделки и арбитражные сигналы\n"
+        "📡 <b>Gifts Intelligence</b> — потенциально выгодные сделки и <a href="https://t.me/c/4429555549/13">арбитражные сигналы</a> (Инструкция)\n"
         "🔍 <b>NFT-Tracker</b> — поиск подарков по модели, фону, номеру и другим параметрам\n\n"
         "⚠️ Сигнал не является гарантией прибыли. Перед покупкой самостоятельно проверяйте "
         "реальные цены, конкурентов, историю продаж и ликвидность"
