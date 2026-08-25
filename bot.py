@@ -121,6 +121,7 @@ async def start(message: Message):
         "реальные цены, конкурентов, историю продаж и ликвидность"
         + status,
         reply_markup=main_menu(),
+        disable_web_page_preview=True,
     )
 
 @dp.message(Command("admin"))
