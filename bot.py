@@ -114,7 +114,7 @@ async def start(message: Message):
 
     await message.answer(
         "💎 <b><a href='https://t.me/GiftsIntelligence'>Gifts Intelligence</a></b>\n\n"
-        "Автоматический мониторинг рынка Telegram NFT Gifts.\n\n"
+        "<b>Автоматический мониторинг рынка Telegram NFT Gifts</b>\n\n"
         "📡 <b>Gifts Intelligence</b> — потенциально выгодные сделки и <a href='https://t.me/c/4429555549/13'>арбитражные сигналы</a> (Инструкция)\n"
         "🔍 <b>NFT-Tracker</b> — поиск подарков по модели, фону, номеру и другим параметрам\n\n"
         "⚠️ Сигнал не является гарантией прибыли. Перед покупкой самостоятельно проверяйте "
